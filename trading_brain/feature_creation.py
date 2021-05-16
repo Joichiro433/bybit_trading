@@ -25,7 +25,7 @@ class SingletonFeaturesCreator(Singleton):
         self._update_df_features()
 
     def _update_df_features(self) -> None:
-        _ohlcs : List[Ohlc] = self.api_client.get_ohlcs(time_interval=constants.DURATION_1M, num_ohlcs=constants.NUMBER_OF_OHLCS)
+        _ohlcs : List[Ohlc] = self.api_client.get_ohlcs()
         _df_ohlcs : pd.DataFrame = pd.DataFrame([ohlc.__dict__ for ohlc in _ohlcs])
         self.df_features = self._create_features(df=_df_ohlcs)
 

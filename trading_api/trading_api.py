@@ -15,6 +15,10 @@ logger = Logger()
 symbol = settings.symbol
 coin = symbol[:3]
 
+unit_time_to_get_a_ohlc = constants.DURATION_1M
+number_of_ohlcs_to_get = constants.NUMBER_OF_OHLCS
+
+
 class Ohlc:
     """ローソク足の情報をもつクラス
 
@@ -175,7 +179,10 @@ class ApiClient:
         wallet_balance : float = resp.json()["result"][f"{coin}"]["available_balance"]
         return wallet_balance
 
-    def get_ohlcs(self, time_interval: str, num_ohlcs: int) -> List[Ohlc]:
+    def get_ohlcs(
+            self,
+            time_interval: str = unit_time_to_get_a_ohlc, 
+            num_ohlcs: int = number_of_ohlcs_to_get) -> List[Ohlc]:
         """現在時刻から指定の分数間のローソク足情報を取得する
 
         Parameters
