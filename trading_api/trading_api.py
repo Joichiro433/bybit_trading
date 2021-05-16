@@ -207,8 +207,6 @@ class ApiClient:
                 delta, unit_time = timedelta(days=num_ohlcs), 60*24
             return int((datetime.now() - delta).timestamp()), unit_time
 
-        # while datetime.now().second > 1:
-        #     time.sleep(0.5)
         ohlcs : List[Ohlc] = []
         now : int = int(datetime.now().timestamp())  # 現在時刻のタイムスタンプ
         start_time, unit_time = __cal_start_time(time_interval, num_ohlcs)  # ohlcの取得開始時刻のタイムスタンプ, ohlcを取得する単位時間
@@ -221,29 +219,7 @@ class ApiClient:
             ohlcs += [self._parse_ohlc_from_dict(dict) for dict in ohlc_info]
             start_time += 200 * 60 * unit_time  # 200単位時間すすめる
 
-        # ohlcs = ohlcs[:-1]  # 直前の時刻の情報はまだ確定していないため、除去
         return ohlcs
-
-    def get_realtime_ohlc(self) -> Iterator[Ohlc]:
-        """ローソク足の情報が更新される度にその情報を取得する
-
-        Yields
-        ------
-        Iterator[Ohlc]
-            更新されたローソク足の情報
-        """
-        while True:
-            while datetime.now().second > 1:
-                time.sleep(0.5)
-            dt : int = int((datetime.now() - timedelta(minutes=1)).timestamp())
-            resp : requests.Response = self.client.rest.inverse.public_kline_list(
-                symbol=symbol,
-                interval=constants.DURATION_1M,  #1分間隔のローソク足
-                from_=dt)
-            ohlc_info : Dict[str, Union[str, int]] = resp.json()['result'][0]
-            ohlc : Ohlc = self._parse_ohlc_from_dict(ohlc_info)
-            yield ohlc
-            time.sleep(50)
 
     def _parse_ohlc_from_dict(self, dict) -> Ohlc:
         """dictとして返却されるローソク足情報を、Ohlcインスタンスに変換する

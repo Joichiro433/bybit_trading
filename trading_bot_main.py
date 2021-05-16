@@ -5,10 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 from rich import print
 
-from logger import Logger
+import constants
 from trading_api.trading_api import ApiClient, Order
 from trading_brain.feature_creation import SingletonFeaturesCreator
 from orders.orders import Trader
+from logger import Logger
 
 logger = Logger()
 logger.remove_oldlog()
@@ -53,7 +54,6 @@ if __name__ == '__main__':
             features_creator.has_updated = False
             print(features_creator.df_features)
             print(datetime.now())
-            time.sleep(20)
 
 
     

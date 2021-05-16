@@ -18,3 +18,6 @@ SELL = 'Sell'
 LIMIT = 'Limit'
 MARKET = 'Market'
 STOP = 'Stop'
+
+NUMBER_OF_OHLCS = 1000
+UPDATE_INTERVAL = 20

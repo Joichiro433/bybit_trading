@@ -22,39 +22,26 @@ class SingletonFeaturesCreator(Singleton):
         self.terms : List[int] = [10, 50]
         self.max_term : int = max(self.terms)
         self.has_updated = False
+        self._update_df_features()
 
-        self.create_df_features()
-
-    def create_df_features(self) -> None:
-        _ohlcs : List[Ohlc] = self.api_client.get_ohlcs(time_interval=constants.DURATION_1M, num_ohlcs=500)
+    def _update_df_features(self) -> None:
+        _ohlcs : List[Ohlc] = self.api_client.get_ohlcs(time_interval=constants.DURATION_1M, num_ohlcs=constants.NUMBER_OF_OHLCS)
         _df_ohlcs : pd.DataFrame = pd.DataFrame([ohlc.__dict__ for ohlc in _ohlcs])
         self.df_features = self._create_features(df=_df_ohlcs)
 
     def create_features_in_realtime(self) -> None:
         while True:
-            _ohlcs : List[Ohlc] = self.api_client.get_ohlcs(time_interval=constants.DURATION_1M, num_ohlcs=500)
-            _df_ohlcs : pd.DataFrame = pd.DataFrame([ohlc.__dict__ for ohlc in _ohlcs])
-            self.df_features = self._create_features(df=_df_ohlcs)
+            self._update_df_features()
             self.has_updated = True
-            time.sleep(30)
-
-    # def create_features_in_realtime(self) -> None:
-    #     time.sleep(1)
-    #     for ohlc in self.api_client.get_realtime_ohlc():
-    #         df_temp : pd.DataFrame = self.df_features[-self.max_term:].copy()  # 特徴量計算に必要な行数を取り出す
-    #         df_temp : pd.DataFrame = df_temp.append(ohlc.__dict__, ignore_index=True)  # 更新されたohlcを追加
-    #         df_updated_info : pd.DataFrame = self._create_features(df=df_temp).tail(1)  # 特徴量を計算し、最後(更新された情報)のみ抽出
-    #         logger.debug(f'{df_updated_info}')
-    #         self.df_features = self.df_features.append(df_updated_info, ignore_index=True)[1:]  # 更新された情報を末尾に追加し、先頭の情報を削除
-    #         self.has_updated = True
+            time.sleep(constants.UPDATE_INTERVAL)
 
     def _create_features(self, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
-        # df = self._cal_ATR(df=df, term=5)
-        # for term in self.terms:
-        #     df = self._cal_SMA(df=df, term=term)
-        #     df = self._cal_std(df=df, term=term)
-        #     df = self._cal_EMA(df=df, term=term)
+        df = self._cal_ATR(df=df, term=5)
+        for term in self.terms:
+            df = self._cal_SMA(df=df, term=term)
+            df = self._cal_std(df=df, term=term)
+            df = self._cal_EMA(df=df, term=term)
         df = self._cal_MACD(df=df, short_term=9, long_term=17, signal_term=7)
         return df.dropna()
 
@@ -85,4 +72,3 @@ class SingletonFeaturesCreator(Singleton):
         df[f'macd'] = (ema_short - ema_long)
         df[f'macd_signal'] = (ema_short - ema_long).ewm(span=signal_term, adjust=False).mean()
         return df
-

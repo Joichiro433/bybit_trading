@@ -3,7 +3,7 @@ import configparser
 from utils.utils import bool_from_str
 
 conf = configparser.ConfigParser()
-conf.read('settings.ini')
+conf.read('settings.ini', encoding='utf=8')
 
 is_testnet = bool_from_str(conf['bybit']['is_testnet'])
 
