@@ -16,7 +16,7 @@ class Trader:
     Attributes
     ----------
     api_client : ApiClient
-        bybitAPIラッパーインスタンス。
+        bybitAPIラッパーインスタンス
     features_creator : SingletonFeaturesCreator
         特徴量生成インスタンス
     algorithms : Algorithms
