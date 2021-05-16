@@ -1,6 +1,8 @@
 .vscode/
 .DS_Store
 
+settings.ini
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
