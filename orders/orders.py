@@ -34,7 +34,7 @@ class Trader:
         """リアルタイムトレードを行う"""
         while True:
             while not self.features_creator.has_updated:
-                time.sleep(1)
+                time.sleep(0.5)
             self.features_creator.has_updated = False
 
             signal : Union[str, None] = self.algorithms.send_trading_signal()
@@ -47,9 +47,6 @@ class Trader:
                     qty=qty,
                     price=None)
                 
-                resp = self.api_client.create_order(order=order)
-                logger.debug(f'{resp}')
+                self.api_client.create_order(order=order)
                 logger.info('order is created')
                 logger.info(f'{order}')
-
-            time.sleep(50)

@@ -1,14 +1,13 @@
-import time
 from datetime import datetime, timedelta
 import dateutil.parser
 import requests
-from typing import Any, Dict, List, Union, Iterator, Tuple
+from typing import Dict, List, Union, Tuple
 
 import pybybit
 
-from logger import Logger
 import constants
 import settings
+from logger import Logger
 
 
 logger = Logger()
@@ -151,7 +150,7 @@ class ApiClient:
         現在のポジション情報を取得する
     get_active_orders -> List[Order | None]
         現在確約していない全ての注文のリストで返却する。存在しなければ空リストを返却する
-    create_order -> None
+    create_order -> requests.Response
         注文を出す
     cancel_all_active_orders -> None:
         現在確約していない全ての注文をキャンセルする
@@ -294,15 +293,20 @@ class ApiClient:
         Orders : List[Union[Order, None]] = [__parse_order_from_dict(dict) for dict in active_orders_info]
         return Orders
 
-    def create_order(self, order: Order) -> None:
+    def create_order(self, order: Order) -> requests.Response:
         """注文を出す
 
         Parameters
         ----------
         order : Order
             出す注文の情報
+
+        Returns
+        -------
+        resp : requests.Response
+            ステータスコード
         """
-        resp = self.client.rest.inverse.private_order_create(
+        resp : requests.Response = self.client.rest.inverse.private_order_create(
             symbol=symbol,
             qty=order.qty,
             side=order.side,
