@@ -1,3 +1,5 @@
+from datetime import datetime
+
 DURATION_1M = '1'
 # DURATION_3M = '3'
 DURATION_5M = '5'
@@ -21,3 +23,7 @@ STOP = 'Stop'
 
 NUMBER_OF_OHLCS = 1000
 UPDATE_INTERVAL = 20
+
+
+timestamp = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+db_name = f'bybit_pl_{timestamp}.sql'
