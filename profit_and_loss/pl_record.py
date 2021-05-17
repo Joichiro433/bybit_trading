@@ -1,22 +1,13 @@
 from datetime import datetime
 from typing import Union
 
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import scoped_session
 from sqlalchemy import Column, DateTime, String, Float
 
-import constants
-from profit_and_loss.base_db import session_scope
+from profit_and_loss.base_db import Base, session_scope
 from logger import Logger
 
 logger = Logger()
-
-Base = declarative_base()
-engine = create_engine(f'sqlite:///{constants.db_name}?check_same_thread=False')
-Session = scoped_session(sessionmaker(bind=engine))
 
 
 class PL:
