@@ -2,7 +2,7 @@ from typing import List, Dict, Union
 import time
 
 import constants
-from trading_api.trading_api import ApiClient, Order
+from trading_api.trading_api import ApiClient, Order, Position
 from trading_brain.feature_creation import SingletonFeaturesCreator
 from trading_brain.algorithms import Algorithms
 from fund_management.fund_management import FundManager
@@ -36,17 +36,44 @@ class Trader:
             while not self.features_creator.has_updated:
                 time.sleep(0.5)
             self.features_creator.has_updated = False
+            signal, has_position  = self.algorithms.send_trading_signal()
+            if signal is not None and has_position:
+                self._settle_position()
+            if signal is not None and not has_position:
+                self._create_order(signal=signal)
 
-            signal : Union[str, None] = self.algorithms.send_trading_signal()
-            if signal is not None:
-                qty : float = self.fund_manager.cul_qty()
+    def _create_order(self, signal: str) -> None:
+        """注文を出す
 
-                order : Order = Order(
-                    side=signal,
-                    order_type=constants.MARKET,
-                    qty=qty,
-                    price=None)
-                
-                self.api_client.create_order(order=order)
-                logger.info('order is created')
-                logger.info(f'{order}')
+        Parameters
+        ----------
+        signal : str = constants.BUY | constans.SELL
+            買い、もしくは売り
+        """
+        qty : int = self.fund_manager.cul_qty()
+        order : Order = Order(
+            side=signal,
+            order_type=constants.MARKET,
+            qty=qty,
+            price=None)
+        self.api_client.create_order(order=order)
+        logger.info('order is created')
+        logger.info(f'{order}')
+
+    def _settle_position(self) -> None:
+        """現在所有しているポジションを決済する"""
+        now_position : Position = self.api_client.get_position()
+        side : str = now_position.side
+        size : int = now_position.size
+        if side == constants.NONE:  # ポジションを所持していない時
+            return None
+        elif side == constants.BUY:
+            side = constants.SELL
+        elif side == constants.SELL:
+            side = constants.BUY
+        order : Order = Order(
+            side=side,
+            order_type=constants.MARKET,
+            qty=size,
+            price=None)
+        self.api_client.create_order(order=order)  # ポジションの決済を行う

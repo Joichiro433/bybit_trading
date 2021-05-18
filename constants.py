@@ -16,6 +16,7 @@ DURATION_1DAY = 'D'
 
 BUY = 'Buy'
 SELL = 'Sell'
+NONE = 'None'
 
 LIMIT = 'Limit'
 MARKET = 'Market'

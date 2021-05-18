@@ -2,10 +2,14 @@ import constants
 
 import numpy as np
 
+import constants
+from trading_api.trading_api import ApiClient
 from trading_brain.feature_creation import SingletonFeaturesCreator
+from trading_brain.judgement import Judgement
 from logger import Logger
 
 logger = Logger()
+
 
 class Algorithms:
     """特徴量を吟味して、注文を出すか否かを判断する
@@ -15,33 +19,21 @@ class Algorithms:
     吟味する指標を増やして、重みつきアンサンブルをとるように改修
     """
     def __init__(self) -> None:
-        self.features_creator = SingletonFeaturesCreator()
-        self.signal_flag : int = 0
+        self.api_client = ApiClient()
+        self.position_side : str
         
     def send_trading_signal(self):
-        self.signal_flag = 0
-        self._judge_by_MACD()
-        if self.signal_flag >= 1:
-            return constants.BUY
-        if self.signal_flag <= -1:
-            return constants.SELL
-        return None
+        # シグナルの初期化
+        has_position : bool = self._check_if_has_position()
+        judgement = Judgement(position_side=self.position_side)  # judgementインスタンスの初期化
+        
+        if judgement.signal_to_create_order >= 1:
+            return constants.BUY, has_position
+        if judgement.signal_to_create_order <= -1:
+            return constants.SELL, has_position
+        return None, has_position
 
-    def _judge_by_MACD(self):
-        macd = np.array(self.features_creator.df_features['macd'])
-        macd_signal = np.array(self.features_creator.df_features['macd_signal'])
-
-        before_macd, after_macd = macd[-2], macd[-1]
-        before_signal, after_signal = macd_signal[-2], macd_signal[-1]
-
-        # 買いのシグナル
-        if before_macd < 0 and before_signal < 0:
-            if before_macd < before_signal and after_macd > after_signal:
-                self.signal_flag = 1
-                logger.info('MACD made a buying decision')
-
-        # 売りのシグナル
-        if before_macd > 0 and before_signal > 0:
-            if before_macd > before_signal and after_macd < after_signal:
-                self.signal_flag = -1
-                logger.info('MACD made a selling decision')
+    def _check_if_has_position(self) -> bool:
+        self.position_side : str = self.api_client.get_position().side
+        has_position : bool = False if self.position_side == constants.NONE else True
+        return has_position

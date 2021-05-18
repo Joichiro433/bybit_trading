@@ -79,6 +79,7 @@ class SingletonFeaturesCreator(Singleton):
             df = self._cal_std(df=df, term=term)
             df = self._cal_EMA(df=df, term=term)
         df = self._cal_MACD(df=df, short_term=9, long_term=17, signal_term=7)
+        df = self._cal_max_min_price(df=df, term=20)
         return df.dropna()
 
     def _cal_ATR(self, df: pd.DataFrame, term: int) -> pd.DataFrame:
@@ -181,4 +182,24 @@ class SingletonFeaturesCreator(Singleton):
         ema_long= df['close'].ewm(span=long_term, adjust=False).mean()
         df[f'macd'] = (ema_short - ema_long)
         df[f'macd_signal'] = (ema_short - ema_long).ewm(span=signal_term, adjust=False).mean()
+        return df
+
+    def _cal_max_min_price(self, df: pd.DataFrame, term: int) -> pd.DataFrame:
+        """指定の期間の最高値、最安値を求める
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            ohlcの情報を持つDataFrame
+        term : int
+            計算する期間
+
+        Returns
+        -------
+        pd.DataFrame
+            ohlcと指定の期間の最高値、最安値の情報を持つDataFrame
+        """
+        df = df.copy()
+        df[f'max_price'] = df['high'].rolling(window=term).max()
+        df[f'min_price'] = df['low'].rolling(window=term).min()
         return df

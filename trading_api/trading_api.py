@@ -60,7 +60,7 @@ class Order:
         買い、もしくは売り
     order_type : str = constans.LIMIT | constans.MARKET | constans.STOP
         成行、指値、逆指値
-    qty : float
+    qty : int
         ポジションサイズ
     price : float | None
         注文の値段。成行注文の場合はNoneとする
@@ -93,7 +93,7 @@ class Position:
 
     Attributes
     ----------
-    side : str = constants.BUY | constants.SELL
+    side : str = constants.BUY | constants.SELL | 'None'
         買い、もしくは売り
     size : int
         ポジションサイズ
@@ -111,14 +111,14 @@ class Position:
     def __init__(
             self,
             side: str,
-            size: float,
+            size: int,
             entry_price: float,
             leverage: float,
             liq_price: float,
             created_at: datetime,
             updated_at: datetime) -> None:
         self.side : str = side
-        self.size : float = size
+        self.size : int = size
         self.entry_price : float = entry_price
         self.leverage : float = leverage
         self.liq_price : float = liq_price
@@ -260,7 +260,7 @@ class ApiClient:
         position_info : Dict[str: Union[str, float]] = resp.json()['result']
         position : Position = Position(
             side=position_info['side'],
-            size=float(position_info['size']),
+            size=int(position_info['size']),
             entry_price=float(position_info['entry_price']),
             leverage=float(position_info['leverage']),
             liq_price=float(position_info['liq_price']),
