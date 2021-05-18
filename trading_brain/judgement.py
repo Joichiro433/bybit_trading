@@ -25,8 +25,10 @@ class Judgement:
         min_price_over_past : float = self.df_features.iloc[-2]['min_price']
         if (now_price > max_price_over_past) and (not self.position_side == constants.BUY):
             self.signal_to_create_order += 1
+            logger.info('donchian made a buying decision')
         if (now_price < min_price_over_past) and (not self.position_side == constants.SELL):
             self.signal_to_create_order -= 1
+            logger.info('donchian made a selling decision')
 
     def _judge_by_MACD(self):
         macd = np.array(self.features_creator.df_features['macd'])

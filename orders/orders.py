@@ -38,8 +38,10 @@ class Trader:
             self.features_creator.has_updated = False
             signal, has_position  = self.algorithms.send_trading_signal()
             if signal is not None and has_position:
+                # ポジションを決済
                 self._settle_position()
             if signal is not None and not has_position:
+                # ポジションを作成
                 self._create_order(signal=signal)
 
     def _create_order(self, signal: str) -> None:
@@ -77,3 +79,5 @@ class Trader:
             qty=size,
             price=None)
         self.api_client.create_order(order=order)  # ポジションの決済を行う
+        logger.info('position is settled')
+        logger.info(f'{order}')

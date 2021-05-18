@@ -51,6 +51,7 @@ class SingletonFeaturesCreator(Singleton):
         while True:
             self._update_df_features()
             self.has_updated = True
+            logger.debug(f'{self.df_features}')
             time.sleep(constants.UPDATE_INTERVAL)
 
     def _update_df_features(self) -> None:
