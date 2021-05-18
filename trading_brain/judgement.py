@@ -20,9 +20,9 @@ class Judgement:
         # self._judge_by_MACD()
 
     def _judge_by_donchian(self):
-        now_price : float = self.df_features.tail(0)['close']
-        max_price_over_past : float = self.df_features.tail(1)['max_price']
-        min_price_over_past : float = self.df_features.tail(1)['min_price']
+        now_price : float = self.df_features.iloc[-1]['close']
+        max_price_over_past : float = self.df_features.iloc[-2]['max_price']
+        min_price_over_past : float = self.df_features.iloc[-2]['min_price']
         if (now_price > max_price_over_past) and (not self.position_side == constants.BUY):
             self.signal_to_create_order += 1
         if (now_price < min_price_over_past) and (not self.position_side == constants.SELL):
