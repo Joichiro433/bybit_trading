@@ -99,7 +99,7 @@ class SingletonFeaturesCreator(Singleton):
             ohlcとATRの情報を持つDataFrame
         """
         df = df.copy()
-        df[f'ATR_{term}'] = (df['high'].rolling(window=term).sum() - df['low'].rolling(window=term).sum()) / term
+        df['ATR'] = (df['high'].rolling(window=term).sum() - df['low'].rolling(window=term).sum()) / term
         return df
 
     def _cal_SMA(self, df: pd.DataFrame, term: int) -> pd.DataFrame:

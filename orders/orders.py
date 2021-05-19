@@ -38,11 +38,10 @@ class Trader:
             self.features_creator.has_updated = False
             signal, has_position  = self.algorithms.send_trading_signal()
             if signal is not None and has_position:
-                # ポジションを決済
-                self._settle_position()
+                self._settle_position()  # ポジションを決済
             if signal is not None and not has_position:
-                # ポジションを作成
-                self._create_order(signal=signal)
+                self._create_order(signal=signal)  # ポジションを作成
+            self._stop_position()  # 損切りの判断
 
     def _create_order(self, signal: str) -> None:
         """注文を出す
@@ -80,4 +79,27 @@ class Trader:
             price=None)
         self.api_client.create_order(order=order)  # ポジションの決済を行う
         logger.info('position is settled')
+        logger.info(f'{order}')
+
+    def _stop_position(self) -> None:
+        now_position : Position = self.api_client.get_position()
+        side : str = now_position.side
+        size : int = now_position.size
+        if side == constants.NONE:
+            return None
+        should_stop_position : bool = self.fund_manager.decide_if_stop_position()
+        if not should_stop_position:
+            return None
+        # 損切りを行う
+        if side == constants.BUY:
+            side = constants.SELL
+        elif side == constants.SELL:
+            side = constants.BUY
+        order : Order = Order(
+            side=side,
+            order_type=constants.MARKET,
+            qty=size,
+            price=None)
+        self.api_client.create_order(order=order)  # ポジションの決済を行う
+        logger.info('position is stopped')
         logger.info(f'{order}')

@@ -25,6 +25,8 @@ STOP = 'Stop'
 NUMBER_OF_OHLCS = 1000
 UPDATE_INTERVAL = 20
 
+STOP_RANGE = 2.0  # 損切りを行う閾値幅の倍率
+ACCEPTSBEL_LOSS_RATE = 0.001  # 全資産のうち、損失を許容する割合
 
 timestamp = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
 db_name = f'bybit_pl_{timestamp}.sql'
